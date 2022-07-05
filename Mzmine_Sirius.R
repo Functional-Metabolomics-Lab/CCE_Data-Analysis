@@ -1,3 +1,5 @@
+####Let's merge steps 2 through 3
+
 # Merging all Sirius and MZmine table output
 
 ####  Notes: For normalization, df will contain molecular feature output,
@@ -9,17 +11,27 @@ library(dplyr)
 library(tidyr)
 library(readr)
 library(stringr)
+library(ecodist)
+library(ggthemes)
+library(ggplot2)
 
 ####  1) Set working directory and pull files into R
 
-setwd("~/Graduate School/Projects/CCE-LTER Cruise/P1706/MZmine and Sirius/P1706_index_ralph")
-ASV16S <- read.csv('ASV16S.csv')
-ASV18SV9 <- read.csv('ASV18SV9.csv')
+setwd("~/Graduate School/Projects/CCE-LTER Cruise/P1706/P1706_index_ralph")
+ASV16S <- read.csv('P1706_ASV16S.csv')
+ASV18SV9 <- read.csv('P1706_ASV18SV9.csv')
 mzmine <- read.csv('CCE1706_MZmine3_GNPS_1_quant.csv')
 sirius <- read.csv('formula_identifications.tsv', sep = "\t")
 canopus <- read.csv('canopus_formula_summary.tsv', sep = "\t")
 
+#_______________________________________________________________________________________________
+
 ####  2) Cleaning up and merging files together
+
+#Remove df unused columns
+
+mzmine <- mzmine[-c(4:13)]
+mzmine$X <- NULL
 
 # Removing excess text in column headers. We can do more/less on this step depending on what we want.
 colnames(mzmine) <- sub('.mzXML.Peak.area', '', as.character(colnames(mzmine)))
@@ -34,8 +46,9 @@ Siriusall <- merge(canopus, sirius, by = 'id', all = TRUE)
 # Indexing featureID out of id
 Siriusall <- separate(data = Siriusall, col = id, into = c(NA, NA, NA, NA, NA, 'row.ID'), sep = '_')
 
-# Merging Siriusall and Mzmine table
+# Merging Siriusall and Mzmine table, clean up columns
 df <- merge(mzmine, Siriusall, by = 'row.ID', all = TRUE)
+df <- df[-c(331:340)] #cleaning up colunns
 
 ####  3) Indexing molecular formulas into C, N, H, P, O, S, etc.
 
@@ -73,10 +86,89 @@ colnames(Canopus_formula) <- paste(colnames(Canopus_formula), "Canopus", sep = '
 
 df <- cbind(df, Canopus_formula)
 
-# df contains only the information on molecular features
+#_______________________________________________________________________________________________
+
+
+
+###End here for merging
+
+#### 3.2 df contains only the information on molecular features
+
+##############   3.2        Van Krevelen Plots  ######
+
+#C:N, O:C, H:C and average C oxidation columns
+df$C_N <- df$C_Sirius / df$N_Sirius
+df$O_C <- df$O_Sirius / df$C_Sirius
+df$H_C <- df$H_Sirius / df$C_Sirius
+df$avCox <- -(1*df$H_Sirius - 3*df$N_Sirius - 2*df$O_Sirius + 5*df$P_Sirius -2*df$S_Sirius)/df$C_Sirius
+
+#Only using Sirius formulas for cutoff
+#Creating van krevelen data frame and cutoffs.
+#Cutoff will be C/N < 4 ; O/C > 2; H/C > 2.5
+df_vk <- subset(df, O_C <2 & H_C < 2.5 & C_N > 4.5)
+df_vk <- subset(df_vk, avCox >-4)
+df_vk <- subset(df_vk, avCox <4)
+
+#Average oxidation state of Carbon
+df_vk$avCox <- -(1*df_vk$H_Sirius - 3*df_vk$N_Sirius - 2*df_vk$O_Sirius + 5*df_vk$P_Sirius -2*df_vk$S_Sirius)/df_vk$C_Sirius
+
+## Van Krevelen Plots
+
+vk <- df_vk[-c(307:353, 356)]
+
+#Molecular Formula
+VK <- ggplot(vk, aes(x = O_C, y = H_C)) +
+  geom_point(aes(color = row.m.z), size = 2, na.rm = TRUE, alpha = 0.6) +
+  scale_color_gradient(name = "Molecular Formula",
+                                 low = ("orange"), high = ("black")) +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        axis.title = element_text(face = "bold"), 
+        axis.text.x = element_text(size = 20), 
+        axis.text.y = element_text(size = 20), 
+        axis.title.x = element_text(size = 24),
+        axis.title.y = element_text(size = 24)) +
+  ggtitle('Van Krevelen Plot of Sirius Formulas (4,931)') +
+  labs(x = "O/C", y = "H/C") +
+  scale_x_continuous(limits = c(0, 1.5), breaks = seq(0.0, 1.2, by = 0.3)) +
+  scale_y_continuous(limits = c(0, 2.5), breaks = seq(0.0, 2.5, by = 0.5))
+
+#Avg Oxidation State
+
+VK2 <- ggplot(df_vk, aes(x = O_C, y = H_C)) +
+  geom_point(aes(color = avCox), size = 2, na.rm = TRUE, alpha = 0.6) +
+  scale_color_gradient2(name = "Carbon Oxidation State",
+                        low = ("blue"), mid = ("white"), high = ("red"), midpoint = 0) +
+  theme(plot.title = element_text(size = 16, face = "bold"),
+        legend.title = element_text(size = 12),
+        legend.text = element_text(size = 12),
+        axis.title = element_text(face = "bold"), 
+        axis.text.x = element_text(size = 20), 
+        axis.text.y = element_text(size = 20), 
+        axis.title.x = element_text(size = 24),
+        axis.title.y = element_text(size = 24)) +
+  ggtitle('Van Krevelen Plot of Sirius Formulas (4,931)') +
+  labs(x = "O/C", y = "H/C") +
+  scale_x_continuous(limits = c(0, 1.5), breaks = seq(0.0, 1.2, by = 0.3)) +
+  scale_y_continuous(limits = c(0, 2.5), breaks = seq(0.0, 2.5, by = 0.5))
+
+
+
+
+
+
+#Replace infinite with NAs
+#df_vk <- do.call(data.frame,                     
+#                   lapply(df_vk,
+#                          function(x) replace(x, is.infinite(x), NA)))
+
+
 
 
 ##########################################  4) Joining ASV data with Metabolite Data
+
+####### Check out P1706 code to see how to do this without creating duplicates for merging ######
 
 
 # I first had to create a .csv file that contained names of PPL samples side by side to names of genetic samples
@@ -155,11 +247,13 @@ metadata2$metadata <- factor(row.names(metadata2))
 
 wholedf <- merge(metadata2, df, all = TRUE)
 
+wholedf <- subset(wholedf, avCox >-4)
+wholedf <- subset(wholedf, avCox <4)
 
-
+wholedf <- wholedf %>% drop_na(avCox)
 
 
 
 
 #  Write dataframe into .csv
-write.csv(wholedf, file = 'molecular_information.csv')
+write.csv(df_vk, file = 'molecular_information3.csv')
