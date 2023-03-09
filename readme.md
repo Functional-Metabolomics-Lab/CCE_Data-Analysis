@@ -22,8 +22,8 @@ This repository contains code and example data for LC-MS/MS and amplicon sequenc
      - _to be updated_
 - [ ] To list the important features, we tried RF and XGBoost (But we should focus on surface samples with different cycles) <br>
      - _to be updated_
-- [ ] Random Forest
-     - 
+- [ ] Random Forest <br>
+     - _to be updated_ To list the important features that helps to classify the data according to different cycles, random forest was performed.
 
 ## FBMN links:
 [Analogs OFF](https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=be9f2757d99148cc952bb5237096c7fd),
