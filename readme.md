@@ -16,6 +16,8 @@ This repository contains code and example data for LC-MS/MS and amplicon sequenc
      - Using the ASV table (16S and 18SV9) and metadata, different stacked bar plots can be made for a particular taxonomic level binning (Phylum level or Genus level) according to different cycles (Cycle 1 Day 1 --> Cycle 4 Day 2)
 - [x] StackedBarPlot_Metabolites.ipynb <br>
      - Using the feature table, different stacked bar plots can be made for a SuperClass level binning (Superclass as given by SIRIUS) according to different cycles . In addition to that, the binned information are saved and will be used further for Sunburst visualization
+- [x] Sunbursts_CCE_Metabolites_python.ipynb <br>
+     - Sunburst visualisation (in Python Notebook) - for Metabolites data ( sunburst plots showings levels: Superclass, Class, Subclass, Level 5) 
 - [ ] Sunburst visualisation (in Python Notebook) - until Genus level for sequencing data <br>
      - _to be updated_
 - [ ] Correlation Analysis script: (Focus on explanation of FDR, how you do it and justification for the method)<br>
