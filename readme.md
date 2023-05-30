@@ -18,10 +18,13 @@ This repository contains code and example data for LC-MS/MS and amplicon sequenc
      - Using the feature table, different stacked bar plots can be made for a SuperClass level binning (Superclass as given by SIRIUS) according to different cycles . In addition to that, the binned information are saved and will be used further for Sunburst visualization
 - [x] Sunbursts_CCE_Metabolites_python.ipynb <br>
      - Sunburst visualisation (in Python Notebook) - for Metabolites data ( sunburst plots showing levels: Superclass, Class, Subclass, Level 5) 
-- [ ] Sunburst visualisation (in Python Notebook) - until Genus level for sequencing data <br>
-     - _to be updated_
+- [x] Sunburst visualisation (in Python Notebook) - until Genus level for sequencing data <br>
+     - Sunburst visualisation for ASV16s and ASV18sv9 data for 3 different depth ranges (full depth, surface:0-20m, deep:20-100m)
+     - sunburst plots showing levels for asv18s: "Domain", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus"
+     - sunburst plots showing levels for asv16s:"Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"
 - [ ] Correlation Analysis script: (Focus on explanation of FDR, how you do it and justification for the method)<br>
      - _to be updated_
+     - already available in the homepage. Needs to be commented better
 - [ ] To list the important features, we tried RF and XGBoost (But we should focus on surface samples with different cycles) <br>
      - _to be updated_
 - [x] Random_Forest.ipynb <br>
